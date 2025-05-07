@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Ajouter des questions</title>
+  <link href="css/ajouterQ.css" rel="stylesheet">
+</head>
+<body>
+
+  <header>Ajouter des questions</header>
+
+  <div class="form-container">
+    <h2>Ajouter des questions</h2>
+    <div class="status" id="statutAjout"></div>
+
+    <!-- QCM fields -->
+    <div id="qcm-fields">
+      <div class="input-group">
+        <label>Texte de la question</label>
+        <input type="text" id="questionText">
+      </div>
+
+      <div class="input-group">
+        <label>Choix A</label>
+        <input type="text" id="choixA">
+      </div>
+
+      <div class="input-group">
+        <label>Choix B</label>
+        <input type="text" id="choixB">
+      </div>
+
+      <div class="input-group">
+        <label>Choix C</label>
+        <input type="text" id="choixC">
+      </div>
+
+      <div class="input-group">
+        <label>Choix D</label>
+        <input type="text" id="choixD">
+      </div>
+
+      <div class="input-group">
+        <label>Bonne réponse (A/B/C/D)</label>
+        <input type="text" id="bonneReponse">
+      </div>
+    </div>
+
+    <!-- Open question fields -->
+    <div id="open-fields" class="hidden">
+      <div class="input-group">
+        <label>Texte de la question ouverte</label>
+        <input type="text" id="questionTextOpen">
+      </div>
+
+      <div class="input-group">
+        <label>Réponse attendue</label>
+        <textarea id="expectedAnswer" rows="4"></textarea>
+      </div>
+    </div>
+
+    <button onclick="ajouterQuestion()">Ajouter la question</button>
+  </div>
+
+  <script src="js/ajouterQ.js">
+  </script>
+</body>
+</html>

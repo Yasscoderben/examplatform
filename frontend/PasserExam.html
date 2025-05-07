@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Passer l'examen</title>
+  <link href="css/passerExam.css" rel="stylesheet">
+  
+</head>
+<body>
+
+  <div class="exam-container">
+    <h2>Examen de Culture Générale</h2>
+    <div class="timer" id="timer">Temps restant : 02:00</div>
+
+    <form id="examForm">
+      <div class="question">
+        <p>1. Quelle est la capitale du Maroc ?</p>
+        <label><input type="radio" name="q1" value="Tetouan"> Tetouan</label>
+        <label><input type="radio" name="q1" value="Rabat"> Rabat</label>
+        <label><input type="radio" name="q1" value="Casabanca"> Casablanca</label>
+      </div>
+
+      <div class="question">
+        <p>2. Quel est le plus haut sommet du Maroc ?</p>
+        <label><input type="radio" name="q2" value="Jbel Toubkal"> Jbel Toubkal</label>
+        <label><input type="radio" name="q2" value="Jbel Zehroun"> Jbel Zehroun</label>
+        <label><input type="radio" name="q2" value="Jbel Tidghin"> Jbel Tidghin</label>
+      </div>
+
+      <div class="question">
+        <p>3. Quelle est la monnaie officielle du Maroc ?</p>
+        <label><input type="radio" name="q3" value="Euro"> Euro </label>
+        <label><input type="radio" name="q3" value="Dinar"> Dinar</label>
+        <label><input type="radio" name="q3" value="Dirham"> Dirham</label>
+      </div>
+      <div class="question">
+        <p>4. En quelle année le Maroc a-t-il obtenu son indépendance de la France ?</p>
+        <label><input type="radio" name="q4" value="1956"> 1956 </label>
+        <label><input type="radio" name="q4" value="1945"> 1945 </label>
+        <label><input type="radio" name="q4" value="1960"> 1960 </label>
+      </div>
+
+      <button type="button" onclick="submitExam()">Envoyer</button>
+    </form>
+  </div>
+
+  <script src="js/passerExam.js">
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Créer un nouvel examen</title>
+  <link href="css/creérexam.css" rel="stylesheet">
+  
+</head>
+<body>
+
+  <header>Créer un examen</header>
+
+  <div class="form-container">
+    <h2>Nouveau Examen</h2>
+
+    <input type="text" id="nomExamen" placeholder="Nom de l'examen" required>
+    <input type="text" id="matiere" placeholder="Matière / Sujet" required>
+    <input type="number" id="duree" placeholder="Durée (minutes)" required>
+
+    <select id="questionType" required>
+      <option disabled selected>Type de question</option>
+      <option value="QCM">QCM</option>
+      <option value="open">Question Ouverte</option>
+    </select>
+    
+
+    
+
+    
+
+    <textarea id="description" rows="3" placeholder="Description de l'examen..."></textarea>
+   
+    <button onclick="enregistrerTemporairement()">Suivant</button>
+  </div>
+
+  <script src="js/creérexam.js">
+  </script>
+
+</body>
+</html>

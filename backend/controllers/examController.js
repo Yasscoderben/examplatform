@@ -61,43 +61,6 @@ exports.getFullExam = (req, res) => {
     });
   });
 };
-exports.submitExam = (req, res) => {
-  const examId = req.params.examId;
-  const { answers } = req.body;
-
-  Exam.getQuestionsByExamId(examId, (err, questions) => {
-    if (err) {
-      return res.status(500).json({ error: "Erreur récupération des questions." });
-    }
-
-    let score = 0;
-    let total = questions.length;
-
-    answers.forEach((rep) => {
-      const question = questions.find(q => q.id == rep.questionId);
-      if (!question) return;
-
-      if (question.type === "QCM") {
-        if (rep.answer === question.correct_answer) {
-          score++;
-        }
-      } else if (question.type === "open") {
-        if (rep.answer.trim().toLowerCase() === (question.expected_answer || "").trim().toLowerCase()) {
-          score++;
-        }
-      }
-    });
-
-    res.json({ score, total });
-  });
-};
-const Exam = require('../Models/examModel');
-
-exports.createExam = (req, res) => { ... };
-
-exports.saveQuestions = (req, res) => { ... };
-
-exports.getFullExam = (req, res) => { ... };
 
 exports.submitExam = (req, res) => {
   const examId = req.params.examId;
@@ -129,4 +92,3 @@ exports.submitExam = (req, res) => {
     res.json({ score, total });
   });
 };
-

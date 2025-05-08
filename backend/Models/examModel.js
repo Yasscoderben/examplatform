@@ -19,3 +19,16 @@ exports.insertQuestion = (examId, q, cb) => {
   ];
   db.query(sql, values, cb);
 };
+
+exports.getExamById = (examId, cb) => {
+  const sql = `SELECT * FROM exams WHERE id = ?`;
+  db.query(sql, [examId], (err, results) => {
+    if (err || results.length === 0) return cb(err, null);
+    cb(null, results[0]);
+  });
+};
+
+exports.getQuestionsByExamId = (examId, cb) => {
+  const sql = `SELECT * FROM questions WHERE exam_id = ?`;
+  db.query(sql, [examId], cb);
+};

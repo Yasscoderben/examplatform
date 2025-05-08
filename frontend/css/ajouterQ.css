@@ -86,3 +86,9 @@
   .hidden {
     display: none;
   }
+  .input-group {
+      margin-bottom: 1rem;
+    }
+    .choix-row {
+      margin-bottom: 0.5rem;
+}

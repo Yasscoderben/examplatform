@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Ajouter des questions</title>
   <link href="css/ajouterQ.css" rel="stylesheet">
+  
 </head>
 <body>
 
@@ -21,29 +22,14 @@
       </div>
 
       <div class="input-group">
-        <label>Choix A</label>
-        <input type="text" id="choixA">
+        <label>Choix</label>
+        <div id="choices-container"></div>
+        <button type="button" onclick="ajouterChoix()">+ Ajouter un choix</button>
       </div>
-
-      <div class="input-group">
-        <label>Choix B</label>
-        <input type="text" id="choixB">
-      </div>
-
-      <div class="input-group">
-        <label>Choix C</label>
-        <input type="text" id="choixC">
-      </div>
-
-      <div class="input-group">
-        <label>Choix D</label>
-        <input type="text" id="choixD">
-      </div>
-
-      <div class="input-group">
-        <label>Bonne réponse (A/B/C/D)</label>
-        <input type="text" id="bonneReponse">
-      </div>
+    </div>
+    <div class="input-group">
+      <label>Fichier média (image, audio, vidéo)</label>
+      <input type="file" id="mediaFile" accept="image/*,audio/*,video/*">
     </div>
 
     <!-- Open question fields -->
@@ -57,12 +43,15 @@
         <label>Réponse attendue</label>
         <textarea id="expectedAnswer" rows="4"></textarea>
       </div>
+      <div class="input-group">
+      <label>Fichier média (image, audio, vidéo)</label>
+      <input type="file" id="mediaFile" accept="image/*,audio/*,video/*">
+    </div>
     </div>
 
     <button onclick="ajouterQuestion()">Ajouter la question</button>
   </div>
 
-  <script src="js/ajouterQ.js">
-  </script>
+  <script src="js/ajouterQ.js"></script>
 </body>
 </html>

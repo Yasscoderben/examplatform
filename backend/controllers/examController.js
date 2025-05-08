@@ -1,30 +1,24 @@
-const Exam = require('../Models/examModel');
+const Exam = require('../models/examModel');
 
-exports.createExam = (req, res) => {
-  const { nom, matiere, duree, questionType, description } = req.body;
+exports.addQuestions = (req, res) => {
+  const examId = req.params.examId;
+  const { questions } = req.body;
 
-  // Basic validation (optional but helpful)
-  if (!nom || !matiere || !duree || !questionType) {
-    return res.status(400).json({ error: 'Missing required fields' });
+  if (!questions || !Array.isArray(questions) || questions.length === 0) {
+    return res.status(400).json({ error: "Aucune question fournie." });
   }
 
-  const examData = {
-    name: nom,
-    subject: matiere,
-    duration: duree,
-    questionType,
-    description: description || '' // optional
-  };
+  let inserted = 0;
 
-  Exam.createExam(examData, (err, result) => {
-    if (err) {
-      console.error('Error creating exam:', err);
-      return res.status(500).json({ error: 'Database error while creating exam' });
-    }
-
-    res.status(201).json({
-      message: 'Exam created successfully',
-      examId: result.insertId
+  questions.forEach((q) => {
+    Exam.insertQuestion(q, examId, (err) => {
+      if (err) {
+        console.error('Erreur insertion question:', err);
+      }
+      inserted++;
+      if (inserted === questions.length) {
+        res.status(201).json({ message: "Questions ajoutées avec succès." });
+      }
     });
   });
 };

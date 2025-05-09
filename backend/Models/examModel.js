@@ -30,8 +30,24 @@ exports.getExamById = (examId, cb) => {
 
 exports.getQuestionsByExamId = (examId, cb) => {
   const sql = `SELECT * FROM questions WHERE exam_id = ?`;
-  db.query(sql, [examId], cb);
+  db.query(sql, [examId], (err, results) => {
+    if (err) return cb(err);
+
+    const fixed = results.map(q => ({
+      id: q.id,
+      text: q.text,
+      type: q.type,
+      choices: q.choices,
+      correct_answer: q.correct_answer,
+      expected_answer: q.expected_answer,
+      media_url: q.media_url
+    }));
+
+    cb(null, fixed);
+  });
 };
+
+
 exports.saveSubmission = ({ userId, examId, score, total }, cb) => {
   const sql = "INSERT INTO submissions (user_id, exam_id, score, total) VALUES (?, ?, ?, ?)";
   db.query(sql, [userId, examId, score, total], cb);

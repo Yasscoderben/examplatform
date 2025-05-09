@@ -6,6 +6,10 @@ window.onload = async () => {
   try {
     const res = await fetch(`http://localhost:5000/api/exams/${examId}/full`);
     const data = await res.json();
+
+    console.log("BACKEND DATA:", data);
+    console.log("QUESTIONS FROM BACKEND:", data.questions);
+
     showExam(data.exam, data.questions);
     startTimer(data.exam.duration);
   } catch (err) {
@@ -19,6 +23,11 @@ function showExam(exam, questions) {
   document.getElementById("timer").textContent = `Temps restant : ${exam.duration}:00`;
   duration = exam.duration;
 
+  if (!questions.length) {
+    examForm.innerHTML += "<p>Aucune question trouvée.</p>";
+    return;
+  }
+
   questions.forEach((q, i) => {
     const div = document.createElement("div");
     div.className = "question";
@@ -27,8 +36,9 @@ function showExam(exam, questions) {
     p.innerHTML = `<strong>${i + 1}. ${q.text}</strong>`;
     div.appendChild(p);
 
+    // Optional media display
     if (q.media_url) {
-      const ext = q.media_url.split('.').pop();
+      const ext = q.media_url.split('.').pop().toLowerCase();
       let media;
       if (["jpg", "jpeg", "png"].includes(ext)) {
         media = document.createElement("img");
@@ -44,11 +54,19 @@ function showExam(exam, questions) {
         media.controls = true;
         media.width = 300;
       }
-      div.appendChild(media);
+      if (media) div.appendChild(media);
     }
 
+    // Render QCM
     if (q.type === "QCM") {
-      const choix = JSON.parse(q.choices);
+      let choix;
+      try {
+        choix = typeof q.choices === "string" ? JSON.parse(q.choices) : q.choices;
+      } catch (err) {
+        console.warn("Erreur parsing choix for question:", q.id, err);
+        choix = {};
+      }
+
       for (let key in choix) {
         const label = document.createElement("label");
         const input = document.createElement("input");
@@ -60,7 +78,10 @@ function showExam(exam, questions) {
         div.appendChild(label);
         div.appendChild(document.createElement("br"));
       }
-    } else {
+    }
+
+    // Render open question
+    else if (q.type === "open") {
       const textarea = document.createElement("textarea");
       textarea.name = `question_${q.id}`;
       textarea.rows = 3;
@@ -70,7 +91,7 @@ function showExam(exam, questions) {
     examForm.appendChild(div);
   });
 
-  // Add submit button at the end
+  // Add submit button
   const submitBtn = document.createElement("button");
   submitBtn.textContent = "Soumettre l'examen";
   submitBtn.type = "button";
@@ -111,7 +132,7 @@ function submitExam() {
     }
   }
 
-  const userId = localStorage.getItem("userId"); // Make sure this is stored at login
+  const userId = localStorage.getItem("userId") || "anonymous"; // fallback if needed
 
   fetch(`http://localhost:5000/api/exams/${examId}/submit`, {
     method: "POST",

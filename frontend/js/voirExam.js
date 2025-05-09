@@ -14,7 +14,7 @@ window.onload = () => {
         return;
       }
 
-      emptyMsg.style.display = "none"; // hide the "aucun exam" message
+      emptyMsg.style.display = "none";
 
       exams.forEach(exam => {
         const card = document.createElement("div");
@@ -25,8 +25,18 @@ window.onload = () => {
           <p><strong>Durée:</strong> ${exam.duration} min</p>
           <p><strong>Type:</strong> ${exam.questionType}</p>
           <p><strong>Description:</strong> ${exam.description || "Aucune description"}</p>
+          <button class="btn-start" data-id="${exam.id}">Passer</button>
         `;
+
         grid.appendChild(card);
+      });
+
+      grid.addEventListener("click", (e) => {
+        if (e.target.classList.contains("btn-start")) {
+          const examId = e.target.getAttribute("data-id");
+          localStorage.setItem("examId", examId);
+          window.location.href = `PasserExam.html?examId=${examId}`;
+        }
       });
     })
     .catch(err => {

@@ -1,25 +1,31 @@
 const Exam = require('../Models/examModel');
 
+// Créer un examen
 exports.createExam = (req, res) => {
-  const { nom, matiere, duree, questionType, description } = req.body;
+  const { name, subject, duration, questionType, description } = req.body;
 
-  const examData = {
-    name: nom,
-    subject: matiere,
-    duration: duree,
-    questionType,
-    description
-  };
+  if (!name || !subject || !duration || !questionType) {
+    return res.status(400).json({ error: "Champs requis manquants." });
+  }
+
+  const examData = { name, subject, duration, questionType, description };
 
   Exam.insertExam(examData, (err, result) => {
     if (err) {
-      console.error(err);
+      console.error("Erreur insertion exam:", err);
       return res.status(500).json({ error: 'Erreur serveur.' });
     }
-    res.status(201).json({ message: 'Examen créé.', examId: result.insertId });
+
+    const examLink = `http://localhost:5500/frontend/PasserExam.html?examId=${result.insertId}`;
+    res.status(201).json({
+      message: 'Examen créé.',
+      examId: result.insertId,
+      examLink
+    });
   });
 };
 
+// Enregistrer les questions d'un examen
 exports.saveQuestions = (req, res) => {
   const examId = req.params.examId;
   const { questions } = req.body;
@@ -29,7 +35,6 @@ exports.saveQuestions = (req, res) => {
   }
 
   let done = 0;
-
   questions.forEach((q) => {
     Exam.insertQuestion(examId, q, (err) => {
       if (err) console.error(err);
@@ -41,8 +46,9 @@ exports.saveQuestions = (req, res) => {
   });
 };
 
+// Récupérer un examen complet avec ses questions
 exports.getFullExam = (req, res) => {
-  const examId = req.params.examId;
+  const examId = req.params.id;
 
   Exam.getExamById(examId, (err, exam) => {
     if (err || !exam) {
@@ -54,14 +60,12 @@ exports.getFullExam = (req, res) => {
         return res.status(500).json({ error: 'Erreur serveur.' });
       }
 
-      res.json({
-        exam,
-        questions
-      });
+      res.json({ exam, questions });
     });
   });
 };
 
+// Soumettre un examen et calculer le score
 exports.submitExam = (req, res) => {
   const examId = req.params.examId;
   const { userId, answers } = req.body;
@@ -85,16 +89,17 @@ exports.submitExam = (req, res) => {
       }
     });
 
-    Exam.insertResult({ examId, userId, score, total }, (err2) => {
+    Exam.saveSubmission({ examId, userId, score, total }, (err2) => {
       if (err2) return res.status(500).json({ error: "Erreur enregistrement résultat" });
       res.json({ message: "Examen soumis", score, total });
     });
   });
 };
+
+//  Récupérer tous les examens (liste)
 exports.getAllExams = (req, res) => {
   Exam.getAll((err, results) => {
     if (err) return res.status(500).json({ error: "Erreur récupération examens" });
     res.json(results);
   });
 };
-

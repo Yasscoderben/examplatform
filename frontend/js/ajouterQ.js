@@ -1,131 +1,82 @@
-let examen = JSON.parse(localStorage.getItem("tempExamen"));
-let questions = [];
-let compteur = 0;
-let isQCM = examen.questionType === "QCM";
-let choiceCount = 0;
-
-window.onload = () => {
-  document.getElementById("statutAjout").textContent =
-    `0 / ? questions ajoutées pour "${examen.nom}"`;
-
-  if (isQCM) {
-    document.getElementById("qcm-fields").classList.remove("hidden");
-    document.getElementById("open-fields").classList.add("hidden");
-    ajouterChoix();
-    ajouterChoix();
-  } else {
-    document.getElementById("qcm-fields").classList.add("hidden");
-    document.getElementById("open-fields").classList.remove("hidden");
-  }
-};
+const examId = new URLSearchParams(window.location.search).get("examId");
+const choicesContainer = document.getElementById("choices-container");
+let choixCount = 0;
 
 function ajouterChoix() {
-  const container = document.getElementById("choices-container");
-  const id = `choix${choiceCount}`;
+  const key = String.fromCharCode(65 + choixCount); // A, B, C, D...
 
-  const div = document.createElement("div");
-  div.classList.add("choix-row");
-  div.innerHTML = `
-    <input type="text" id="${id}" placeholder="Choix ${choiceCount + 1}" required>
-    <input type="radio" name="correct" value="${id}"> Bonne réponse
-  `;
-  container.appendChild(div);
-  choiceCount++;
+  const wrapper = document.createElement("div");
+  wrapper.className = "choix-item";
+
+  const radio = document.createElement("input");
+  radio.type = "radio";
+  radio.name = "bonneReponse";
+  radio.value = key;
+
+  const input = document.createElement("input");
+  input.type = "text";
+  input.placeholder = `Choix ${key}`;
+  input.className = "choix-input";
+  input.setAttribute("data-key", key);
+
+  wrapper.appendChild(radio);
+  wrapper.appendChild(input);
+  choicesContainer.appendChild(wrapper);
+
+  choixCount++;
 }
 
 function ajouterQuestion() {
-  const mediaInput = document.getElementById("mediaFile");
-  const media = mediaInput && mediaInput.files.length > 0
-    ? mediaInput.files[0].name
-    : null;
+  const texte = document.getElementById("questionText").value.trim();
+  const media = document.getElementById("mediaFile").files[0];
+  const bonneRadio = document.querySelector("input[name='bonneReponse']:checked");
 
-  if (isQCM) {
-    const qText = document.getElementById("questionText").value.trim();
-    const inputs = document.querySelectorAll("#choices-container input[type='text']");
-    const radios = document.querySelectorAll("#choices-container input[type='radio']");
+  if (!texte) return alert("Veuillez écrire la question.");
+  if (!bonneRadio) return alert("Sélectionnez la bonne réponse.");
 
-    let choix = {};
-    let bonneReponse = null;
+  const bonneReponse = bonneRadio.value;
+  const choixInputs = document.querySelectorAll(".choix-input");
 
-    inputs.forEach((input) => {
-      if (input.value.trim()) {
-        choix[input.id] = input.value.trim();
-      }
-    });
+  const choix = {};
+  choixInputs.forEach(input => {
+    const key = input.getAttribute("data-key");
+    const val = input.value.trim();
+    if (key && val) choix[key] = val;
+  });
 
-    radios.forEach(radio => {
-      if (radio.checked) bonneReponse = radio.value;
-    });
+  if (Object.keys(choix).length < 2) return alert("Ajoutez au moins 2 choix.");
 
-    if (!qText || Object.keys(choix).length < 2 || !bonneReponse) {
-      alert("Veuillez remplir correctement la question QCM.");
-      return;
-    }
-
-    const question = {
-      type: "QCM",
-      texte: qText,
-      choix: JSON.stringify(choix),
-      bonneReponse,
-      media
-    };
-
-    questions.push(question);
-
-    document.getElementById("questionText").value = "";
-    document.getElementById("choices-container").innerHTML = "";
-    document.getElementById("mediaFile").value = "";
-    choiceCount = 0;
-    ajouterChoix();
-    ajouterChoix();
-
-  } else {
-    const qText = document.getElementById("questionTextOpen").value.trim();
-    const answer = document.getElementById("expectedAnswer").value.trim();
-
-    if (!qText || !answer) {
-      alert("Veuillez remplir tous les champs de la question ouverte.");
-      return;
-    }
-
-    const question = {
-      type: "open",
-      texte: qText,
-      reponseAttendue: answer,
-      media
-    };
-
-    questions.push(question);
-    document.getElementById("questionTextOpen").value = "";
-    document.getElementById("expectedAnswer").value = "";
-    document.getElementById("mediaFile").value = "";
-  }
-
-  compteur++;
-  document.getElementById("statutAjout").textContent =
-    `${compteur} questions ajoutées pour "${examen.nom}"`;
-}
-
-function validerExamen() {
-  if (questions.length === 0) {
-    alert("Ajoutez au moins une question.");
-    return;
-  }
-
-  const examId = localStorage.getItem("examId");
+  const questionData = {
+    type: "QCM",
+    texte,
+    choix,
+    bonneReponse,
+    media: media ? media.name : null
+  };
 
   fetch(`http://localhost:5000/api/exams/${examId}/questions`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ questions })
+    body: JSON.stringify({ questions: [questionData] })
   })
     .then(res => res.json())
-    .then(data => {
-      alert("Toutes les questions ont été enregistrées !");
-      window.location.href = "voirExam.HTML";
+    .then(() => {
+      alert("Question ajoutée !");
+      clearForm();
     })
     .catch(err => {
-      console.error("Erreur:", err);
-      alert("Erreur lors de l'enregistrement.");
+      console.error(err);
+      alert("Erreur lors de l'ajout de la question.");
     });
+}
+
+function clearForm() {
+  document.getElementById("questionText").value = "";
+  document.getElementById("mediaFile").value = "";
+  choicesContainer.innerHTML = "";
+  choixCount = 0;
+}
+
+function validerExamen() {
+  window.location.href = `PasserExam.html?examId=${examId}`;
 }

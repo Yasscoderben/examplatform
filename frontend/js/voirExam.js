@@ -1,27 +1,36 @@
-const examens = JSON.parse(localStorage.getItem("examens")) || [];
-    const grid = document.getElementById("examensGrid");
-    const emptyMessage = document.getElementById("emptyMessage");
+function retour() {
+  window.location.href = "auth.html";
+}
 
-    if (examens.length === 0) {
-      emptyMessage.style.display = "block";
-    } else {
-      emptyMessage.style.display = "none";
-      examens.forEach((examen, index) => {
-        const div = document.createElement("div");
-        div.className = "card";
-        div.innerHTML = `
-          <h3>${examen.nom}</h3>
-          <p><strong>Matière:</strong> ${examen.matiere}</p>
-          <p><strong>Niveau:</strong> ${examen.niveau}</p>
-          <p><strong>Date:</strong> ${examen.date}</p>
-          <p><strong>Durée:</strong> ${examen.duree} min</p>
-          <p><strong>Questions:</strong> ${examen.questions.length}</p>
-          <button onclick="window.location.href='ExamDetails.html?id=${index}'">voir l'exam </button>
+window.onload = () => {
+  fetch("http://localhost:5000/api/exams")
+    .then(res => res.json())
+    .then(exams => {
+      const grid = document.getElementById("examensGrid");
+      const emptyMsg = document.getElementById("emptyMessage");
+
+      if (exams.length === 0) {
+        emptyMsg.style.display = "block";
+        return;
+      }
+
+      emptyMsg.style.display = "none"; // hide the "aucun exam" message
+
+      exams.forEach(exam => {
+        const card = document.createElement("div");
+        card.className = "exam-card";
+        card.innerHTML = `
+          <h3>${exam.name}</h3>
+          <p><strong>Matière:</strong> ${exam.subject}</p>
+          <p><strong>Durée:</strong> ${exam.duration} min</p>
+          <p><strong>Type:</strong> ${exam.questionType}</p>
+          <p><strong>Description:</strong> ${exam.description || "Aucune description"}</p>
         `;
-        grid.appendChild(div);
+        grid.appendChild(card);
       });
-      function retour() {
-      window.location.href = "auth.html";
-    }
-      
-    }
+    })
+    .catch(err => {
+      console.error("Erreur lors du chargement des examens:", err);
+      document.getElementById("emptyMessage").textContent = "Erreur lors du chargement.";
+    });
+};

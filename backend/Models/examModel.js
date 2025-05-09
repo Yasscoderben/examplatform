@@ -32,3 +32,11 @@ exports.getQuestionsByExamId = (examId, cb) => {
   const sql = `SELECT * FROM questions WHERE exam_id = ?`;
   db.query(sql, [examId], cb);
 };
+exports.saveSubmission = ({ userId, examId, score, total }, cb) => {
+  const sql = "INSERT INTO submissions (user_id, exam_id, score, total) VALUES (?, ?, ?, ?)";
+  db.query(sql, [userId, examId, score, total], cb);
+};
+exports.getAll = (cb) => {
+  db.query("SELECT * FROM exams", cb);
+};
+

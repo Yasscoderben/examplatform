@@ -6,7 +6,7 @@ let choiceCount = 0;
 
 window.onload = () => {
   document.getElementById("statutAjout").textContent =
-    `0 / ${examen.nbQuestions} questions ajoutées pour "${examen.nom}"`;
+    `0 / ? questions ajoutées pour "${examen.nom}"`;
 
   if (isQCM) {
     document.getElementById("qcm-fields").classList.remove("hidden");
@@ -65,12 +65,13 @@ function ajouterQuestion() {
     const question = {
       type: "QCM",
       texte: qText,
-      choix,
+      choix: JSON.stringify(choix),
       bonneReponse,
       media
     };
 
     questions.push(question);
+
     document.getElementById("questionText").value = "";
     document.getElementById("choices-container").innerHTML = "";
     document.getElementById("mediaFile").value = "";
@@ -102,23 +103,29 @@ function ajouterQuestion() {
 
   compteur++;
   document.getElementById("statutAjout").textContent =
-    `${compteur} / ${examen.nbQuestions} questions ajoutées pour "${examen.nom}"`;
+    `${compteur} questions ajoutées pour "${examen.nom}"`;
+}
 
-  if (compteur === parseInt(examen.nbQuestions)) {
-    const examId = localStorage.getItem("examId");
-
-    fetch(`http://localhost:5000/api/exams/${examId}/questions`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ questions })
-    })
-      .then(res => res.json())
-      .then(data => {
-        alert("Toutes les questions ont été enregistrées.");
-        window.location.href = "voirExam.HTML";
-      })
-      .catch(err => {
-        console.error("Erreur:", err);
-      });
+function validerExamen() {
+  if (questions.length === 0) {
+    alert("Ajoutez au moins une question.");
+    return;
   }
+
+  const examId = localStorage.getItem("examId");
+
+  fetch(`http://localhost:5000/api/exams/${examId}/questions`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ questions })
+  })
+    .then(res => res.json())
+    .then(data => {
+      alert("Toutes les questions ont été enregistrées !");
+      window.location.href = "voirExam.HTML";
+    })
+    .catch(err => {
+      console.error("Erreur:", err);
+      alert("Erreur lors de l'enregistrement.");
+    });
 }

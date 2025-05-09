@@ -22,15 +22,36 @@ body {
     color: #3e64a3;
   }
 
-  a.button {
-    text-decoration: none;
-    background-color: #1f3c88;
-    color: white;
-    padding: 12px 24px;
-    border-radius: 8px;
-    transition: background-color 0.3s;
-  }
+.button {
+  display: inline-block;
+  width: 200px;
+  margin: 10px;
+  padding: 14px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 12px;
+  transition: background-color 0.3s, transform 0.2s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
 
-  a.button:hover {
-    background-color: #345ba3;
-  }
+.button.primary {
+  background-color: #004080;
+  color: #f9fbff;
+}
+
+.button.primary:hover {
+  background-color: #004080;
+  transform: scale(1.03);
+}
+
+.button.secondary {
+  background-color: #3a3a3a;
+  color: #eee;
+}
+
+.button.secondary:hover {
+  background-color: #555;
+  transform: scale(1.03);
+}

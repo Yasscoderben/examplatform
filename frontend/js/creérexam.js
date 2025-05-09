@@ -15,7 +15,7 @@ function enregistrerTemporairement() {
   }
 
   // ✅ Send to backend
-  fetch("/api/exams/create", {
+  fetch("http://localhost:5000/api/exams/create", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(examen)

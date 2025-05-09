@@ -1,4 +1,4 @@
-const examId = localStorage.getItem("examId"); // Or get from URL
+const examId = new URLSearchParams(window.location.search).get("examId");
 const examForm = document.getElementById("examForm");
 let duration = 0;
 
@@ -69,6 +69,13 @@ function showExam(exam, questions) {
 
     examForm.appendChild(div);
   });
+
+  // Add submit button at the end
+  const submitBtn = document.createElement("button");
+  submitBtn.textContent = "Soumettre l'examen";
+  submitBtn.type = "button";
+  submitBtn.onclick = submitExam;
+  examForm.appendChild(submitBtn);
 }
 
 function startTimer(minutes) {
@@ -104,13 +111,17 @@ function submitExam() {
     }
   }
 
+  const userId = localStorage.getItem("userId"); // Make sure this is stored at login
+
   fetch(`http://localhost:5000/api/exams/${examId}/submit`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ answers })
+    body: JSON.stringify({ answers, userId })
   })
     .then(res => res.json())
     .then(data => {
+      localStorage.setItem("lastScore", data.score);
+      localStorage.setItem("lastTotal", data.total);
       alert(`Votre score : ${data.score}/${data.total}`);
       window.location.href = "resultat.html";
     })

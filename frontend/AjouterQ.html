@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>Ajouter des questions</title>
   <link href="css/ajouterQ.css" rel="stylesheet">
-  
 </head>
 <body>
 
@@ -27,10 +26,6 @@
         <button type="button" onclick="ajouterChoix()">+ Ajouter un choix</button>
       </div>
     </div>
-    <div class="input-group">
-      <label>Fichier média (image, audio, vidéo)</label>
-      <input type="file" id="mediaFile" accept="image/*,audio/*,video/*">
-    </div>
 
     <!-- Open question fields -->
     <div id="open-fields" class="hidden">
@@ -43,13 +38,17 @@
         <label>Réponse attendue</label>
         <textarea id="expectedAnswer" rows="4"></textarea>
       </div>
-      <div class="input-group">
+    </div>
+
+    <!-- Shared media file input -->
+    <div class="input-group">
       <label>Fichier média (image, audio, vidéo)</label>
       <input type="file" id="mediaFile" accept="image/*,audio/*,video/*">
     </div>
-    </div>
 
+    <!-- Buttons -->
     <button onclick="ajouterQuestion()">Ajouter la question</button>
+    <button id="submit-exam-btn" onclick="validerExamen()">✅ Valider l'examen</button>
   </div>
 
   <script src="js/ajouterQ.js"></script>

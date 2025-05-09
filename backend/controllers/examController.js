@@ -64,31 +64,37 @@ exports.getFullExam = (req, res) => {
 
 exports.submitExam = (req, res) => {
   const examId = req.params.examId;
-  const { answers } = req.body;
+  const { userId, answers } = req.body;
 
   Exam.getQuestionsByExamId(examId, (err, questions) => {
-    if (err) {
-      return res.status(500).json({ error: "Erreur récupération des questions." });
-    }
+    if (err) return res.status(500).json({ error: "Erreur serveur" });
 
     let score = 0;
     let total = questions.length;
 
-    answers.forEach((rep) => {
-      const question = questions.find(q => q.id == rep.questionId);
-      if (!question) return;
+    answers.forEach(rep => {
+      const q = questions.find(q => q.id == rep.questionId);
+      if (!q) return;
 
-      if (question.type === "QCM") {
-        if (rep.answer === question.correct_answer) {
-          score++;
-        }
-      } else if (question.type === "open") {
-        if (rep.answer.trim().toLowerCase() === (question.expected_answer || "").trim().toLowerCase()) {
-          score++;
-        }
+      if (q.type === 'QCM' && rep.answer === q.correct_answer) {
+        score++;
+      } else if (q.type === 'open') {
+        const correct = (q.expected_answer || "").trim().toLowerCase();
+        const given = (rep.answer || "").trim().toLowerCase();
+        if (given === correct) score++;
       }
     });
 
-    res.json({ score, total });
+    Exam.insertResult({ examId, userId, score, total }, (err2) => {
+      if (err2) return res.status(500).json({ error: "Erreur enregistrement résultat" });
+      res.json({ message: "Examen soumis", score, total });
+    });
   });
 };
+exports.getAllExams = (req, res) => {
+  Exam.getAll((err, results) => {
+    if (err) return res.status(500).json({ error: "Erreur récupération examens" });
+    res.json(results);
+  });
+};
+

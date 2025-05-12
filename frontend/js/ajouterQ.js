@@ -1,6 +1,26 @@
+
 const examId = new URLSearchParams(window.location.search).get("examId");
 const choicesContainer = document.getElementById("choices-container");
 let choixCount = 0;
+
+window.onload = async () => {
+  try {
+    const res = await fetch(`http://localhost:5000/api/exams/${examId}/full`);
+    const data = await res.json();
+    const type = data.exam.questionType;
+
+    if (type === "QCM") {
+      document.getElementById("qcm-fields").classList.remove("hidden");
+      document.getElementById("open-fields").classList.add("hidden");
+    } else {
+      document.getElementById("qcm-fields").classList.add("hidden");
+      document.getElementById("open-fields").classList.remove("hidden");
+    }
+  } catch (err) {
+    alert("Erreur lors du chargement de l'examen.");
+    console.error(err);
+  }
+};
 
 function ajouterChoix() {
   const key = String.fromCharCode(65 + choixCount); // A, B, C, D...
@@ -27,33 +47,54 @@ function ajouterChoix() {
 }
 
 function ajouterQuestion() {
-  const texte = document.getElementById("questionText").value.trim();
+  const type = document.getElementById("qcm-fields").classList.contains("hidden") ? "open" : "QCM";
   const media = document.getElementById("mediaFile").files[0];
-  const bonneRadio = document.querySelector("input[name='bonneReponse']:checked");
 
-  if (!texte) return alert("Veuillez écrire la question.");
-  if (!bonneRadio) return alert("Sélectionnez la bonne réponse.");
+  if (type === "QCM") {
+    const texte = document.getElementById("questionText").value.trim();
+    const bonneRadio = document.querySelector("input[name='bonneReponse']:checked");
+    const choixInputs = document.querySelectorAll(".choix-input");
 
-  const bonneReponse = bonneRadio.value;
-  const choixInputs = document.querySelectorAll(".choix-input");
+    if (!texte || !bonneRadio || choixInputs.length < 2) {
+      return alert("Veuillez remplir tous les champs QCM correctement.");
+    }
 
-  const choix = {};
-  choixInputs.forEach(input => {
-    const key = input.getAttribute("data-key");
-    const val = input.value.trim();
-    if (key && val) choix[key] = val;
-  });
+    const choix = {};
+    choixInputs.forEach(input => {
+      const key = input.getAttribute("data-key");
+      const val = input.value.trim();
+      if (key && val) choix[key] = val;
+    });
 
-  if (Object.keys(choix).length < 2) return alert("Ajoutez au moins 2 choix.");
+    const questionData = {
+      type: "QCM",
+      texte,
+      choix,
+      bonneReponse: bonneRadio.value,
+      media: media ? media.name : null
+    };
 
-  const questionData = {
-    type: "QCM",
-    texte,
-    choix,
-    bonneReponse,
-    media: media ? media.name : null
-  };
+    envoyerQuestion(questionData);
+  } else {
+    const texte = document.getElementById("questionTextOpen").value.trim();
+    const reponseAttendue = document.getElementById("expectedAnswer").value.trim();
 
+    if (!texte || !reponseAttendue) {
+      return alert("Veuillez remplir la question ouverte et sa réponse attendue.");
+    }
+
+    const questionData = {
+      type: "open",
+      texte,
+      reponseAttendue,
+      media: media ? media.name : null
+    };
+
+    envoyerQuestion(questionData);
+  }
+}
+
+function envoyerQuestion(questionData) {
   fetch(`http://localhost:5000/api/exams/${examId}/questions`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -72,6 +113,8 @@ function ajouterQuestion() {
 
 function clearForm() {
   document.getElementById("questionText").value = "";
+  document.getElementById("questionTextOpen").value = "";
+  document.getElementById("expectedAnswer").value = "";
   document.getElementById("mediaFile").value = "";
   choicesContainer.innerHTML = "";
   choixCount = 0;

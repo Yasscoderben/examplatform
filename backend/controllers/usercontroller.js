@@ -1,41 +1,65 @@
-const Exam = require('../models/examModel');
+const db = require('../config/db');
+const bcrypt = require('bcrypt');
 
-exports.createExam = (req, res) => {
-  const { nom, matiere, duree, questionType, description } = req.body;
+// Inscription
+exports.signup = async (req, res) => {
+  const {
+    nom,
+    prenom,
+    email,
+    password,
+    naissance, 
+    sexe,
+    etablissement,
+    filiere,
+    type 
+  } = req.body;
 
-  const examData = {
-    name: nom,
-    subject: matiere,
-    duration: duree,
-    questionType,
-    description
-  };
+  const motDePasse = await bcrypt.hash(password, 10);
+  const dateNaissance = naissance;
+  const typeUser = type;
 
-  Exam.insertExam(examData, (err, result) => {
+  const sql = `INSERT INTO users (nom, prenom, email, motDePasse, dateNaissance, sexe, etablissement, filiere, typeUser)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  const values = [nom, prenom, email, motDePasse, dateNaissance, sexe, etablissement, filiere, typeUser];
+
+  db.query(sql, values, (err, result) => {
     if (err) {
-      console.error(err);
-      return res.status(500).json({ error: 'Erreur serveur.' });
+      console.error("Erreur inscription SQL:", err.sqlMessage);
+      return res.status(500).json({ error: "Erreur lors de l'inscription: " + err.sqlMessage });
     }
-    res.status(201).json({ message: 'Examen créé.', examId: result.insertId });
+    res.status(201).json({ message: "Utilisateur inscrit avec succès !" });
   });
 };
 
-exports.saveQuestions = (req, res) => {
-  const examId = req.params.examId;
-  const { questions } = req.body;
+// Connexion
+exports.login = (req, res) => {
+  const { email, password } = req.body;
 
-  if (!Array.isArray(questions)) {
-    return res.status(400).json({ error: 'Format des questions invalide.' });
-  }
+  const sql = `SELECT * FROM users WHERE email = ?`;
+  db.query(sql, [email], async (err, results) => {
+    if (err) {
+      console.error("Erreur login:", err);
+      return res.status(500).json({ error: "Erreur serveur" });
+    }
 
-  let done = 0;
+    if (results.length === 0) {
+      return res.status(401).json({ error: "Email incorrect" });
+    }
 
-  questions.forEach((q) => {
-    Exam.insertQuestion(examId, q, (err) => {
-      if (err) console.error(err);
-      done++;
-      if (done === questions.length) {
-        res.status(200).json({ message: 'Questions enregistrées.' });
+    const user = results[0];
+    const isValidPassword = await bcrypt.compare(password, user.motDePasse);
+
+    if (!isValidPassword) {
+      return res.status(401).json({ error: "Mot de passe incorrect" });
+    }
+
+    res.json({
+      message: "Connexion réussie",
+      user: {
+        id: user.id,
+        nom: user.nom,
+        typeUser: user.typeUser
       }
     });
   });
